@@ -37,7 +37,7 @@ int main(int argc, const char *argv[])
 
     // misc
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
-    vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
+    LeakyStack<DataFrame> dataBuffer(dataBufferSize); // list of data frames which are held in memory at the same time
     bool bVis = false;            // visualize results
 
     /* MAIN LOOP OVER ALL IMAGES */
@@ -77,13 +77,12 @@ int main(int argc, const char *argv[])
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
         //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
-        if (detectorType.compare("SHITOMASI") == 0)
-        {
+        if (detectorType.compare("SHITOMASI") == 0){
             detKeypointsShiTomasi(keypoints, imgGray, false);
-        }
-        else
-        {
-            //...
+        }else if(detectorType.compare("HARRIS") == 0){
+            detKeypointsHarris(keypoints, imgGray, false);
+        }else{
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
         }
         //// EOF STUDENT ASSIGNMENT
 
@@ -93,9 +92,14 @@ int main(int argc, const char *argv[])
         // only keep keypoints on the preceding vehicle
         bool bFocusOnVehicle = true;
         cv::Rect vehicleRect(535, 180, 180, 150);
+        vector<cv::KeyPoint> filtered_keypoints; // create empty feature list for current image
         if (bFocusOnVehicle)
         {
-            // ...
+            for(auto kp: keypoints){
+                if(vehicleRect.contains(kp.pt))
+                    filtered_keypoints.push_back(kp);
+            }
+            keypoints = filtered_keypoints;
         }
 
         //// EOF STUDENT ASSIGNMENT
