@@ -125,7 +125,7 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
 }
 
 void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis){
-    detKeypointsShiTomasiHarris(keypoints, img,bVis, true);
+    detKeypointsShiTomasiHarris(keypoints, img, bVis, true);
 }
 
 void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis){
@@ -142,8 +142,11 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
         }else if(detectorType.compare("AKAZE") == 0){
             detector = cv::AKAZE::create();
         }else if(detectorType.compare("SIFT") == 0){
-            detector = cv::xfeatures2d::SIFT::create();
+            detector = cv::xfeatures2d::SURF::create();
         }
         detector->detect(img, keypoints);
     }
+    // visualize results
+    if (bVis)
+        visualize(img, keypoints);
 }

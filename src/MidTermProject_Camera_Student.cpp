@@ -38,10 +38,13 @@ int main(int argc, const char *argv[])
     // misc
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     LeakyStack<DataFrame> dataBuffer(dataBufferSize); // list of data frames which are held in memory at the same time
-    bool bVis = false;            // visualize results
+    vector<DataFrame> dataBuffer2;
+    bool bVis = true;            // visualize results
+    vector<string> detectorTypes = {"SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT"};
+    string detectorType = detectorTypes[1];
 
     /* MAIN LOOP OVER ALL IMAGES */
-
+    for(auto detectorType: detectorTypes)
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
     {
         /* LOAD IMAGE INTO BUFFER */
@@ -71,19 +74,20 @@ int main(int argc, const char *argv[])
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "SHITOMASI";
+
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
         //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
         if (detectorType.compare("SHITOMASI") == 0){
-            detKeypointsShiTomasi(keypoints, imgGray, false);
+            detKeypointsShiTomasi(keypoints, imgGray, bVis);
         }else if(detectorType.compare("HARRIS") == 0){
-            detKeypointsHarris(keypoints, imgGray, false);
+            detKeypointsHarris(keypoints, imgGray, bVis);
         }else{
-            detKeypointsModern(keypoints, imgGray, detectorType, false);
+            detKeypointsModern(keypoints, imgGray, detectorType, bVis);
         }
+        break;
         //// EOF STUDENT ASSIGNMENT
 
         //// STUDENT ASSIGNMENT

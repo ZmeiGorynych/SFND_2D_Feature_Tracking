@@ -16,12 +16,12 @@ struct DataFrame { // represents the available sensor information at the same ti
 };
 
 template<typename T>
-struct LeakyStack: public std::deque<T>
+struct LeakyStack
 {
     std::deque<T> data;
     int max_size;
 
-    T push_back(T element){
+    void push_back(T element){
         data.push_back(element);
         if(data.size()> max_size)
             data.pop_front();
