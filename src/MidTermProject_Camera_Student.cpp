@@ -39,12 +39,14 @@ int main(int argc, const char *argv[])
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     LeakyStack<DataFrame> dataBuffer(dataBufferSize); // list of data frames which are held in memory at the same time
     vector<DataFrame> dataBuffer2;
-    bool bVis = true;            // visualize results
+    bool bVis = false;            // visualize results
     vector<string> detectorTypes = {"SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT"};
-    string detectorType = detectorTypes[1];
+    vector<string> descriptorTypes = { "BRISK", "BRIEF", "ORB", "FREAK", "SIFT", "AKAZE"};
+    string detectorType = detectorTypes[0];
+    string descriptorType = descriptorTypes[0];
 
     /* MAIN LOOP OVER ALL IMAGES */
-    for(auto detectorType: detectorTypes)
+    for(auto descriptorType: descriptorTypes)
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
     {
         /* LOAD IMAGE INTO BUFFER */
@@ -87,7 +89,7 @@ int main(int argc, const char *argv[])
         }else{
             detKeypointsModern(keypoints, imgGray, detectorType, bVis);
         }
-        break;
+
         //// EOF STUDENT ASSIGNMENT
 
         //// STUDENT ASSIGNMENT
@@ -133,7 +135,6 @@ int main(int argc, const char *argv[])
         //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
 
@@ -141,7 +142,7 @@ int main(int argc, const char *argv[])
         (dataBuffer.end() - 1)->descriptors = descriptors;
 
         cout << "#3 : EXTRACT DESCRIPTORS done" << endl;
-
+        break;
         if (dataBuffer.size() > 1) // wait until at least two images have been processed
         {
 
