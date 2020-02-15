@@ -37,16 +37,25 @@ int main(int argc, const char *argv[])
 
     // misc
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
-    LeakyStack<DataFrame> dataBuffer(dataBufferSize); // list of data frames which are held in memory at the same time
-    vector<DataFrame> dataBuffer2;
+    // list of data frames which are held in memory at the same time
     bool bVis = false;            // visualize results
     vector<string> detectorTypes = {"SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT"};
-    vector<string> descriptorTypes = { "BRISK", "BRIEF", "ORB", "FREAK", "SIFT", "AKAZE"};
+    vector<string> descriptorKinds = { "BRISK", "BRIEF", "ORB", "FREAK", "SIFT", "AKAZE"};
+    vector<string> matcherTypes = {"MAT_FLANN", "MAT_BF"};
+    vector<string> selectorTypes = {"SEL_NN", "SEL_KNN"};
     string detectorType = detectorTypes[0];
-    string descriptorType = descriptorTypes[0];
+    string descriptorKind = descriptorKinds[0];
+
+    string matcherType = matcherTypes[0];        //
+    string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
+    string selectorType = selectorTypes[0];       // SEL_NN, SEL_KNN
+
 
     /* MAIN LOOP OVER ALL IMAGES */
-    for(auto descriptorType: descriptorTypes)
+    for(auto matcherType: matcherTypes)
+        for(auto selectorType: selectorTypes){
+            LeakyStack<DataFrame> dataBuffer(dataBufferSize);
+            cout << "*** " << selectorType << endl;
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
     {
         /* LOAD IMAGE INTO BUFFER */
@@ -135,23 +144,19 @@ int main(int argc, const char *argv[])
         //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorKind);
         //// EOF STUDENT ASSIGNMENT
 
         // push descriptors for current frame to end of data buffer
         (dataBuffer.end() - 1)->descriptors = descriptors;
 
         cout << "#3 : EXTRACT DESCRIPTORS done" << endl;
-        break;
         if (dataBuffer.size() > 1) // wait until at least two images have been processed
         {
 
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
 
             //// STUDENT ASSIGNMENT
             //// TASK MP.5 -> add FLANN matching in file matching2D.cpp
@@ -169,7 +174,7 @@ int main(int argc, const char *argv[])
             cout << "#4 : MATCH KEYPOINT DESCRIPTORS done" << endl;
 
             // visualize matches between current and previous image
-            bVis = true;
+            bVis = false;
             if (bVis)
             {
                 cv::Mat matchImg = ((dataBuffer.end() - 1)->cameraImg).clone();
@@ -187,8 +192,11 @@ int main(int argc, const char *argv[])
             }
             bVis = false;
         }
+        if(dataBuffer.size()>=2)
+            break;
 
     } // eof loop over all images
+        }
 
     return 0;
 }

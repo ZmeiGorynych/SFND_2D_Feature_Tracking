@@ -10,6 +10,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     // configure matcher
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
+    double t = (double)cv::getTickCount();
 
     if (matcherType.compare("MAT_BF") == 0)
     {
@@ -18,7 +19,8 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
+        // taken from https://answers.opencv.org/question/59996/flann-error-in-opencv-3/
+        matcher = cv::makePtr<cv::FlannBasedMatcher>(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
     }
 
     // perform matching task
@@ -30,10 +32,15 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     { // k nearest neighbors (k=2)
         std::vector<std::vector<cv::DMatch>> knn_matches;
         matcher->knnMatch(descSource, descRef, knn_matches, 2);
+        // massage that into the expected output shape
         for(auto vec: knn_matches)
             for(auto match: vec)
                 matches.push_back(match);
     }
+
+    cout << "*** Matching using " << matcherType << " got " << matches.size() << " matches" << endl;
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << descriptorType << " Matching done in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
