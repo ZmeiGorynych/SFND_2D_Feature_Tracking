@@ -54,7 +54,8 @@ int main(int argc, const char *argv[]) {
     // list of data frames which are held in memory at the same time
     bool bVis = false;            // visualize results
     vector<string> detectorTypes = {"SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT"};
-    vector<string> descriptorKinds = {"BRISK", "BRIEF", "FREAK", "AKAZE", "SIFT"}; //"ORB",
+    // INCLUDING ORB IN THE BELOW CAUSES AN OUT OF MEMORY ERROR!
+    vector<string> descriptorKinds = {"BRISK", "BRIEF", "FREAK", "AKAZE", "SIFT"}; //, "ORB" //
     vector<string> matcherTypes = {"MAT_BF", "MAT_FLANN"};
     vector<string> selectorTypes = {"SEL_NN", "SEL_KNN"};
     vector<DetectorStats> detectorStats;
@@ -165,7 +166,9 @@ int main(int argc, const char *argv[]) {
 
                 cv::Mat descriptors;
                 double descriptionTime =
-                        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors,
+                        descKeypoints((dataBuffer.end() - 1)->keypoints,
+                                      (dataBuffer.end() - 1)->cameraImg,
+                                      descriptors,
                                       descriptorKind);
                 //// EOF STUDENT ASSIGNMENT
 
