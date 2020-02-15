@@ -7,9 +7,9 @@ set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 project(camera_fusion)
 
-#find_package(OpenCV 4.1 REQUIRED)
-#/home/ubuntu/shared/GitHubLibs/opencv-4.1.0/build
-find_package(OpenCV REQUIRED PATHS /home/ubuntu/shared/GitHubLibs/opencv-4.1.0/build NO_DEFAULT_PATH)
+find_package(OpenCV 4.1 REQUIRED)
+
+#find_package(OpenCV REQUIRED PATHS /home/ubuntu/shared/GitHubLibs/opencv-4.1.0/build NO_DEFAULT_PATH)
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 add_definitions(${OpenCV_DEFINITIONS})

@@ -54,7 +54,8 @@ int main(int argc, const char *argv[]) {
     // list of data frames which are held in memory at the same time
     bool bVis = false;            // visualize results
     vector<string> detectorTypes = {"SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT"};
-    vector<string> descriptorKinds = {"BRISK", "BRIEF", "FREAK", "AKAZE", "SIFT"}; //"ORB",
+    // INCLUDING ORB IN THE BELOW CAUSES AN OUT OF MEMORY ERROR!
+    vector<string> descriptorKinds = {"BRISK", "BRIEF", "FREAK", "AKAZE", "SIFT"}; //, "ORB"
     vector<string> matcherTypes = {"MAT_BF", "MAT_FLANN"};
     vector<string> selectorTypes = {"SEL_NN", "SEL_KNN"};
     vector<DetectorStats> detectorStats;
@@ -165,7 +166,9 @@ int main(int argc, const char *argv[]) {
 
                 cv::Mat descriptors;
                 double descriptionTime =
-                        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors,
+                        descKeypoints((dataBuffer.end() - 1)->keypoints,
+                                      (dataBuffer.end() - 1)->cameraImg,
+                                      descriptors,
                                       descriptorKind);
                 //// EOF STUDENT ASSIGNMENT
 
@@ -235,7 +238,7 @@ int main(int argc, const char *argv[]) {
 
 // and now let's log the results
     std::ofstream dstats;
-    dstats.open("/home/ubuntu/shared/GitHub/SFND/SFND_2D_Feature_Tracking/detector_stats.csv");
+    dstats.open("/home/workspace/SFND_2D_Feature_Tracking/detector_stats.csv");
     dstats << "detector,num_keypoints,neighb_size_mean,neighb_size_var,image_num" << endl;
     for (auto ds: detectorStats) {
         dstats << ds.detector << "," << ds.num_keypoints << "," << ds.neighb_size_mean <<
@@ -244,7 +247,7 @@ int main(int argc, const char *argv[]) {
     dstats.close();
 
     std::ofstream mstats;
-    mstats.open("/home/ubuntu/shared/GitHub/SFND/SFND_2D_Feature_Tracking/matcher_stats.csv");
+    mstats.open("/home/workspace/SFND_2D_Feature_Tracking/matcher_stats.csv");
     mstats << "detector,descriptor,detector_time,descriptor_time,num_matches,image_num" << endl;
     for (auto ds: matchStats) {
         mstats << ds.detector << "," << ds.descriptor << ","
