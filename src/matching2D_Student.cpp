@@ -14,13 +14,19 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
+
+        int normType;
+        if(descriptorType.compare("DES_BINARY")==0)
+            normType= cv::NORM_HAMMING;
+        else
+            normType = cv::NORM_L2;
         matcher = cv::BFMatcher::create(normType, crossCheck);
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
         // taken from https://answers.opencv.org/question/59996/flann-error-in-opencv-3/
-        matcher = cv::makePtr<cv::FlannBasedMatcher>(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
+        matcher = cv::makePtr<cv::FlannBasedMatcher>(
+                cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
     }
 
     // perform matching task
@@ -32,10 +38,18 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     { // k nearest neighbors (k=2)
         std::vector<std::vector<cv::DMatch>> knn_matches;
         matcher->knnMatch(descSource, descRef, knn_matches, 2);
-        // massage that into the expected output shape
-        for(auto vec: knn_matches)
-            for(auto match: vec)
-                matches.push_back(match);
+        // do the distance ratio test
+        for(auto& vec: knn_matches)
+            if(vec.size()==2){
+                if(10*vec[0].distance <  8*vec[1].distance)
+                    matches.push_back(vec[0]);
+                else if(10*vec[1].distance <  8*vec[0].distance)
+                    matches.push_back(vec[1]);
+            }else if(vec.size()==1) {
+                matches.push_back(vec[0]);
+            }else{
+                //cout << "malformed vector!" << endl;
+            }
     }
 
     cout << "*** Matching using " << matcherType << " got " << matches.size() << " matches" << endl;
@@ -44,7 +58,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
-void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
+double descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
 {
     // select appropriate descriptor
     cv::Ptr<cv::DescriptorExtractor> extractor;
@@ -82,6 +96,7 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
     extractor->compute(img, keypoints, descriptors);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
+    return 1000.0*t;
 }
 
 void visualize(cv::Mat& img, vector<cv::KeyPoint> &keypoints)
@@ -95,7 +110,7 @@ void visualize(cv::Mat& img, vector<cv::KeyPoint> &keypoints)
 }
 
 // Detect keypoints in image using the traditional Shi-Thomasi detector
-void detKeypointsShiTomasiHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis, bool useHarris)
+double detKeypointsShiTomasiHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis, bool useHarris)
 {
     // compute detector parameters based on image size
     int blockSize = 4;       //  size of an average block for computing a derivative covariation matrix over each pixel neighborhood
@@ -132,17 +147,18 @@ void detKeypointsShiTomasiHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, 
     if (bVis)
         visualize(img, keypoints);
 
+    return 1000.0*t;
 }
 
-void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis){
-    detKeypointsShiTomasiHarris(keypoints, img, bVis, false);
+double detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis){
+    return detKeypointsShiTomasiHarris(keypoints, img, bVis, false);
 }
 
-void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis){
-    detKeypointsShiTomasiHarris(keypoints, img, bVis, true);
+double detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis){
+    return detKeypointsShiTomasiHarris(keypoints, img, bVis, true);
 }
 
-void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis){
+double detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis){
     double t = (double)cv::getTickCount();
 
     //FAST, BRISK, ORB, AKAZE, SIFT
@@ -171,4 +187,5 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
     // visualize results
     if (bVis)
         visualize(img, keypoints);
+    return 1000.0*t;
 }

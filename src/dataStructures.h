@@ -2,6 +2,7 @@
 #define dataStructures_h
 
 #include <vector>
+#include <string>
 #include <deque>
 #include <opencv2/core.hpp>
 
@@ -14,6 +15,24 @@ struct DataFrame { // represents the available sensor information at the same ti
     cv::Mat descriptors; // keypoint descriptors
     std::vector<cv::DMatch> kptMatches; // keypoint matches between previous and current frame
 };
+
+struct DetectorStats{
+    std::string detector;
+    int num_keypoints;
+    float neighb_size_mean;
+    float neighb_size_var;
+    size_t image_num;
+};
+
+struct MatchStats{
+    std::string detector;
+    std::string descriptor;
+    int num_matches;
+    int image_num;
+    float detector_time;
+    float descriptor_time;
+};
+
 
 template<typename T>
 struct LeakyStack
