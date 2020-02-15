@@ -1,4 +1,4 @@
-detector, num_keypoints, neighb_size_mean, neighb_size_var, image_num
+detector,num_keypoints,neighb_size_mean,neighb_size_var,image_num
 SHITOMASI,125,4,0,0
 SHITOMASI,118,4,0,1
 SHITOMASI,123,4,0,2
