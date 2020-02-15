@@ -226,8 +226,8 @@ int main(int argc, const char *argv[]) {
                     }
                     bVis = false;
                 }
-                if (imgIndex >= 4)
-                    break;
+//                if (imgIndex >= 4)
+//                    break;
 
             } // eof loop over all images
         }
@@ -236,7 +236,7 @@ int main(int argc, const char *argv[]) {
 // and now let's log the results
     std::ofstream dstats;
     dstats.open("/home/ubuntu/shared/GitHub/SFND/SFND_2D_Feature_Tracking/detector_stats.csv");
-    dstats << "detector, num_keypoints, neighb_size_mean, neighb_size_var, image_num" << endl;
+    dstats << "detector,num_keypoints,neighb_size_mean,neighb_size_var,image_num" << endl;
     for (auto ds: detectorStats) {
         dstats << ds.detector << "," << ds.num_keypoints << "," << ds.neighb_size_mean <<
                "," << ds.neighb_size_var << "," << ds.image_num << endl;
@@ -245,7 +245,7 @@ int main(int argc, const char *argv[]) {
 
     std::ofstream mstats;
     mstats.open("/home/ubuntu/shared/GitHub/SFND/SFND_2D_Feature_Tracking/matcher_stats.csv");
-    dstats << "detector, descriptor, detector_time, descriptor_time, num_matches, image_num" << endl;
+    mstats << "detector,descriptor,detector_time,descriptor_time,num_matches,image_num" << endl;
     for (auto ds: matchStats) {
         mstats << ds.detector << "," << ds.descriptor << ","
                << ds.detector_time << "," << ds.descriptor_time <<
